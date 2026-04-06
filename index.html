@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Special Gift for Hiruuuuu</title>
+    <link href="https://fonts.googleapis.com/css2?family=Pacifico&family=Poppins:wght@300;500&display=swap" rel="stylesheet">
+    <style>
+        body { background-color: #000; margin: 0; overflow: hidden; font-family: 'Poppins', sans-serif; height: 100vh; width: 100vw; transition: background 2s ease; }
+        canvas { position: absolute; left: 0; top: 0; width: 100%; height: 100%; z-index: 1; transition: opacity 2s ease; }
+        
+        #dark-overlay { 
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
+            background: #000; z-index: 2; display: none; opacity: 0; 
+            transition: opacity 2s ease; pointer-events: none; 
+        }
+
+        .container { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center; width: 85%; max-width: 320px; z-index: 100; transition: all 1s ease; }
+
+        /* Loader Styles */
+        #loading-text { color: #ea80b0; font-weight: bold; font-size: 14px; margin-bottom: 10px; letter-spacing: 2px; }
+        #progress-bg { width: 100%; max-width: 180px; height: 8px; background: rgba(234, 128, 176, 0.1); border-radius: 10px; border: 1px solid rgba(234, 128, 176, 0.3); overflow: hidden; margin: 0 auto; }
+        #progress-bar { width: 0%; height: 100%; background: #ea80b0; box-shadow: 0 0 10px #ea80b0; }
+        #percent { color: #ea80b0; font-size: 12px; display: block; margin-top: 8px; }
+
+        /* Menu Tabs */
+        #final-tab, #message-box { 
+            display: none; background: rgba(255, 255, 255, 0.25); 
+            backdrop-filter: blur(25px); -webkit-backdrop-filter: blur(25px); 
+            padding: 35px 20px; border-radius: 35px; border: 1px solid rgba(255, 255, 255, 0.3); 
+            opacity: 0; box-shadow: 0 10px 40px rgba(0,0,0,0.1); 
+        }
+
+        .option-btn { 
+            display: flex; align-items: center; justify-content: space-between; width: 85%; margin: 12px auto; padding: 12px 25px; 
+            border-radius: 50px; font-size: 14px; transition: 0.5s; 
+            background: rgba(255, 255, 255, 0.4); color: #fff; border: 1px solid rgba(255, 255, 255, 0.5); 
+            cursor: not-allowed; pointer-events: none; filter: blur(1px);
+        }
+        .option-btn.active { background: #ff5e8e; color: #fff; opacity: 1; cursor: pointer; pointer-events: auto; filter: blur(0px); box-shadow: 0 5px 15px rgba(255, 94, 142, 0.4); }
+        .step1-active { background: #ff5e8e !important; color: #fff !important; cursor: pointer !important; pointer-events: auto !important; filter: blur(0px) !important; opacity: 1 !important; }
+
+        /* Polaroid Photo Style */
+        .memory-photo {
+            position: fixed; width: 170px; height: auto;
+            background-color: #fff; padding: 8px 8px 22px 8px; 
+            border-radius: 2px; z-index: 9; 
+            image-rendering: -webkit-optimize-contrast;
+            filter: brightness(1.02) contrast(1.05); 
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3), 0 10px 30px rgba(0,0,0,0.5);
+            animation: floatUpPhoto 9s linear forwards;
+            object-fit: cover;
+            border: 1px solid rgba(0,0,0,0.02);
+        }
+
+        @keyframes floatUpPhoto {
+            0% { transform: translateY(110vh) rotate(var(--rot-start)); opacity: 0; }
+            10% { opacity: 1; }
+            90% { opacity: 1; }
+            100% { transform: translateY(-40vh) rotate(var(--rot-end)); opacity: 0; }
+        }
+
+        .letter-title { font-family: 'Pacifico', cursive; color: #ff5e8e; font-size: 24px; margin-bottom: 20px; text-align: center; }
+        .letter-content { color: #fff; font-size: 15px; line-height: 1.7; white-space: pre-wrap; text-align: left; }
+        .floating-heart { position: fixed; bottom: -50px; color: #ff5e8e; font-size: 20px; z-index: 5; animation: moveUp 5s linear forwards; }
+        @keyframes moveUp { 0% { transform: translateY(0); opacity: 0; } 10% { opacity: 1; } 100% { transform: translateY(-110vh); opacity: 0; } }
+    </style>
+</head>
+<body>
+    <div id="dark-overlay"></div>
+    <audio id="bgMusic" loop>
+        <source src="https://raw.githubusercontent.com/malithindunil8-sudo/hiru-memories/main/song.mp3" type="audio/mpeg">
+    </audio>
+    <canvas id="pinkboard"></canvas>
+
+    <div id="main-container" class="container">
+        <div id="loading-text">LOADING</div>
+        <div id="progress-bg"><div id="progress-bar"></div></div>
+        <span id="percent">0%</span>
+        <button id="continue-btn" class="step1-active" style="display:none; padding:10px 30px; border-radius:25px; border:none; margin-top:10px; cursor:pointer;" onclick="nextStep()">Continue</button>
+    </div>
+
+    <div id="final-tab" class="container">
+        <div style="color: #fff; font-family: 'Pacifico', cursive; font-size: 22px; margin-bottom: 20px;">Sweetheart, Lov u chutiiii..! 🥳</div>
+        <button id="btn-lights" class="option-btn step1-active" onclick="step1_TurnOff()"><span>💡 Turn off Lights</span></button>
+        <button id="btn-memories" class="option-btn" onclick="step2_Memories()"><span>🎈 Fly Memories</span><span id="mem-lock">🔒</span></button>
+        <button id="btn-message" class="option-btn" onclick="step3_Message()"><span>✉️ Read My Message</span><span id="msg-lock">🔒</span></button>
+    </div>
+
+    <div id="message-box" class="container">
+        <div class="letter-title">To Hiruuuuu.. ❤️</div>
+        <div id="final-letter" class="letter-content"></div>
+        <button class="step1-active" onclick="location.reload()" style="margin-top:20px; padding:8px 20px; border:none; border-radius:20px; font-size:12px; cursor:pointer;">Close</button>
+    </div>
+
+    <script>
+        var settings = { particles: { length: 500, duration: 2, velocity: 100, effect: -0.75, size: 30 } };
+
+        const photos = [];
+        for (let i = 1; i <= 91; i++) {
+            photos.push(`https://raw.githubusercontent.com/malithindunil8-sudo/hiru-memories/main/images/${i}.jpg`);
+        }
+
+        // Preload Photos
+        photos.forEach(src => { const img = new Image(); img.src = src; });
+
+        const myMessage = "Hiru.. ❤️\n\nI know you have been waiting for me to say this. Coming into my life might have been an accident, but loving you is the best decision I have ever made. \n\nI love you so much, Chooti.. Stay mine forever.. ❤️🌻✨";
+
+        // Loader Logic
+        var count = 0, isLoaded = false;
+        var loaderTimer = setInterval(function() {
+            if(isLoaded) return;
+            var pb = document.getElementById('progress-bar'), pt = document.getElementById('percent'), cb = document.getElementById('continue-btn');
+            if(count < 100) {
+                count += 0.8;
+                pb.style.width = count + '%';
+                pt.innerHTML = Math.floor(count) + '%';
+            } else {
+                document.getElementById('loading-text').style.display = 'none';
+                document.getElementById('progress-bg').style.display = 'none';
+                pt.style.display = 'none';
+                cb.style.display = 'inline-block';
+                isLoaded = true;
+                clearInterval(loaderTimer);
+            }
+        }, 30);
+
+        function nextStep() {
+            document.getElementById('bgMusic').play().catch(e => console.log("Audio waiting for interaction"));
+            document.body.style.background = "#ffc0cb";
+            document.getElementById('pinkboard').style.opacity = '0';
+            document.getElementById('main-container').style.opacity = '0';
+            setTimeout(() => {
+                document.getElementById('main-container').style.display = 'none';
+                var tab = document.getElementById('final-tab');
+                tab.style.display = 'block';
+                setTimeout(() => tab.style.opacity = '1', 100);
+                startHearts();
+            }, 1000);
+        }
+
+        function startHearts() {
+            setInterval(() => {
+                const h = document.createElement('div'); h.classList.add('floating-heart'); h.innerHTML = '❤️';
+                h.style.left = Math.random() * 100 + 'vw'; document.body.appendChild(h);
+                setTimeout(() => h.remove(), 5000);
+            }, 600);
+        }
+
+        function step1_TurnOff() {
+            var overlay = document.getElementById('dark-overlay');
+            overlay.style.display = 'block';
+            setTimeout(() => { overlay.style.opacity = '1'; document.body.style.background = "#000"; }, 10);
+            document.getElementById('btn-lights').style.display = 'none';
+            document.getElementById('btn-memories').classList.add('active');
+            document.getElementById('mem-lock').innerHTML = "✨";
+        }
+
+        function step2_Memories() {
+            let i = 0;
+            setInterval(() => {
+                if (i >= photos.length) i = 0;
+                createPhoto(photos[i]);
+                i++;
+            }, 1200);
+
+            let timeLeft = 30;
+            const btnMsg = document.getElementById('btn-message');
+            const msgLock = document.getElementById('msg-lock');
+            const timer = setInterval(() => {
+                timeLeft--;
+                msgLock.innerHTML = "⏳ " + timeLeft + "s";
+                if(timeLeft <= 0) { clearInterval(timer); btnMsg.classList.add('active'); msgLock.innerHTML = "🔓"; }
+            }, 1000);
+        }
+
+        function createPhoto(src) {
+            const img = new Image();
+            img.src = src;
+            img.onload = function() {
+                const photoDiv = document.createElement('img');
+                photoDiv.src = src;
+                photoDiv.classList.add('memory-photo');
+                const rStart = Math.random() * 40 - 20;
+                photoDiv.style.left = Math.random() * 65 + 10 + 'vw';
+                photoDiv.style.setProperty('--rot-start', rStart + 'deg');
+                photoDiv.style.setProperty('--rot-end', (rStart + 20) + 'deg');
+                document.body.appendChild(photoDiv);
+                setTimeout(() => photoDiv.remove(), 9500);
+            };
+        }
+
+        function step3_Message() {
+            document.getElementById('final-tab').style.opacity = '0';
+            setTimeout(() => {
+                document.getElementById('final-tab').style.display = 'none';
+                var msgBox = document.getElementById('message-box');
+                msgBox.style.display = 'block';
+                setTimeout(() => { msgBox.style.opacity = '1'; typeWriter(myMessage, "final-letter", 50); }, 100);
+            }, 1000);
+        }
+
+        function typeWriter(text, elementId, speed) {
+            var i = 0, element = document.getElementById(elementId);
+            element.innerHTML = "";
+            function type() { if(i < text.length) { element.innerHTML += text.charAt(i); i++; setTimeout(type, speed); } }
+            type();
+        }
+
+        /* Heart Animation Engine */
+        var Point = (function() {
+            function t(t, n) { this.x = t || 0; this.y = n || 0; }
+            t.prototype.clone = function() { return new t(this.x, this.y); };
+            t.prototype.length = function(t) { if (typeof t == 'undefined') return Math.sqrt(this.x * this.x + this.y * this.y); this.normalize(); this.x *= t; this.y *= t; return this; };
+            t.prototype.normalize = function() { var t = this.length(); this.x /= t; this.y /= t; return this; };
+            return t;
+        })();
+
+        var Particle = (function() {
+            function t() { this.position = new Point(); this.velocity = new Point(); this.acceleration = new Point(); this.age = 0; }
+            t.prototype.initialize = function(t, n, e, i) { this.position.x = t; this.position.y = n; this.velocity.x = e; this.velocity.y = i; this.acceleration.x = e * settings.particles.effect; this.acceleration.y = i * settings.particles.effect; this.age = 0; };
+            t.prototype.update = function(t) { this.position.x += this.velocity.x * t; this.position.y += this.velocity.y * t; this.velocity.x += this.acceleration.x * t; this.velocity.y += this.acceleration.y * t; this.age += t; };
+            t.prototype.draw = function(t, n) { function e(t) { return --t * t * t + 1; } var i = n.width * e(this.age / settings.particles.duration); t.globalAlpha = 1 - this.age / settings.particles.duration; t.drawImage(n, this.position.x - i / 2, this.position.y - i / 2, i, i); };
+            return t;
+        })();
+
+        var ParticlePool = (function() {
+            var t, n = 0, e = 0, i = settings.particles.duration;
+            function o(n) { t = new Array(n); for (var e = 0; e < t.length; e++) t[e] = new Particle(); }
+            o.prototype.add = function(i, o, r, a) { t[e].initialize(i, o, r, a); e++; if (e == t.length) e = 0; if (n == e) n++; if (n == t.length) n = 0; };
+            o.prototype.update = function(o) { var r; if (n < e) for (r = n; r < e; r++) t[r].update(o); if (e < n) { for (r = n; r < t.length; r++) t[r].update(o); for (r = 0; r < e; r++) t[r].update(o); } while (t[n].age >= i && n != e) { n++; if (n == t.length) n = 0; } };
+            o.prototype.draw = function(i, o) { var r; if (n < e) for (r = n; r < e; r++) t[r].draw(i, o); if (e < n) { for (r = n; r < t.length; r++) t[r].draw(i, o); for (r = 0; r < e; r++) t[r].draw(i, o); } };
+            return o;
+        })();
+
+        (function(canvas) {
+            var context = canvas.getContext('2d'), particles = new ParticlePool(settings.particles.length), particleRate = settings.particles.length / settings.particles.duration, time;
+            function pointOnHeart(t) { return new Point(160 * Math.pow(Math.sin(t), 3), 130 * Math.cos(t) - 50 * Math.cos(2 * t) - 20 * Math.cos(3 * t) - 10 * Math.cos(4 * t) + 25); }
+            var image = (function() {
+                var canvas = document.createElement('canvas'), ctx = canvas.getContext('2d');
+                canvas.width = settings.particles.size; canvas.height = settings.particles.size;
+                function draw(t) { var pos = pointOnHeart(t); pos.x = settings.particles.size / 2 + pos.x * settings.particles.size / 350; pos.y = settings.particles.size / 2 - pos.y * settings.particles.size / 350; ctx.beginPath(); var t = -Math.PI; while (t <= Math.PI) { var tmp = pointOnHeart(t); ctx.lineTo(settings.particles.size / 2 + tmp.x * settings.particles.size / 350, settings.particles.size / 2 - tmp.y * settings.particles.size / 350); t += 0.01; } ctx.closePath(); ctx.fillStyle = '#ea80b0'; ctx.fill(); }
+                draw(-Math.PI); var img = new Image(); img.src = canvas.toDataURL(); return img;
+            })();
+            function render() {
+                requestAnimationFrame(render);
+                var newTime = new Date().getTime() / 1000, dt = newTime - (time || newTime); time = newTime;
+                context.clearRect(0, 0, canvas.width, canvas.height);
+                var amount = particleRate * dt;
+                for (var i = 0; i < amount; i++) {
+                    var pos = pointOnHeart(Math.PI - 2 * Math.PI * Math.random());
+                    var dir = pos.clone().length(settings.particles.velocity);
+                    particles.add(canvas.width / 2 + pos.x, canvas.height / 2 - pos.y, dir.x, -dir.y);
+                }
+                particles.update(dt); particles.draw(context, image);
+            }
+            function onResize() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
+            window.onresize = onResize; setTimeout(function() { onResize(); render(); }, 10);
+        })(document.getElementById('pinkboard'));
+    </script>
+</body>
+</html>
